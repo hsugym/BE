@@ -1,53 +1,253 @@
-# ✨ 한성대학교 헬스장 관리 시스템 - Backend
-
-Express.js + MySQL 기반 REST API 서버
-
----
-
-## ✨ 프로젝트 개요
+# 🏋️ Hansung Gym Management System - Backend
 
 한성대학교 헬스장 통합 관리 시스템의 백엔드 API 서버입니다.
-회원 관리, 운동 기록, 식단 관리, 포인트 시스템, 멘토링 매칭 등을 제공하는 RESTful API입니다.
+
+## 📋 목차
+- [주요 기능](#-주요-기능)
+- [기술 스택](#-기술-스택)
+- [시스템 아키텍처](#-시스템-아키텍처)
+- [데이터 플로우](#-데이터-플로우)
+- [프로젝트 구조](#-프로젝트-구조)
+- [설치 및 실행](#-설치-및-실행)
+- [API 엔드포인트](#-api-엔드포인트)
+- [데이터베이스 스키마](#-데이터베이스-스키마)
 
 ---
 
-## ✨ 기술 스택
+## 🎯 주요 기능
 
-| 구분 | 기술 |
-|------|------|
-| **Runtime** | Node.js 18+ |
-| **Framework** | Express.js 4.18.2 |
-| **Database** | MySQL 5.7+ / 8.0+ |
-| **Driver** | MySQL2 (Promise-based) |
-| **환경 변수** | dotenv |
-| **CORS** | cors |
+### 1. 회원 관리
+- 회원 가입 및 로그인 (JWT 인증)
+- 프로필 관리 (학번, 이름, 연락처, 학과, 학년)
+- 역할 기반 권한 관리 (일반회원, 강사, 멘토, 멘티)
+
+### 2. 출석 관리
+- 실시간 입/퇴장 기록
+- 현재 헬스장 이용 인원 조회 (혼잡도)
+- 출석 기반 포인트 자동 적립
+
+### 3. 운동 기록
+- 운동 종목별 기록 관리
+- 운동 시간 및 칼로리 추적
+- 운동 기록 기반 포인트 적립
+
+### 4. 식단 관리
+- 식사 기록 (아침/점심/저녁/간식)
+- 칼로리 계산 및 추적
+- 식단 기록 기반 포인트 적립
+
+### 5. 목표 설정 및 달성
+- 개인 목표 설정
+- 목표 달성률 추적
+- 목표 달성 시 포인트 보상
+
+### 6. 포인트 및 보상 시스템
+- 활동 기반 포인트 자동 적립
+- 포인트 교환 상품 관리
+- 포인트 사용 내역 추적
+
+### 7. 수업 관리
+- 수업 등록 및 시간표 관리
+- 수강 신청 및 정원 관리
+- 강사 배정
+
+### 8. 멘토링 시스템
+- 멘토-멘티 매칭
+- 멘토링 신청 및 관리
+
+### 9. 신체 기록
+- 체중, 근육량, 체지방 기록
+- BMI 계산 및 추적
+- 신체 변화 그래프
+
+### 10. 뱃지 및 업적
+- 활동 기반 뱃지 획득
+- 업적 달성 기록
 
 ---
 
-## ✨ 프로젝트 구조
+## 🛠 기술 스택
+
+### Backend Framework
+- **Node.js** (v18+) - JavaScript 런타임
+- **Express.js** (v4.18) - 웹 프레임워크
+
+### Database
+- **MySQL** (v8.0+) - 관계형 데이터베이스
+- **mysql2** - MySQL 클라이언트
+
+### Authentication & Security
+- **JWT (jsonwebtoken)** - 토큰 기반 인증
+- **bcryptjs** - 비밀번호 암호화
+
+### Middleware & Utilities
+- **cors** - CORS 설정
+- **dotenv** - 환경 변수 관리
+- **body-parser** - 요청 본문 파싱
+- **cookie-parser** - 쿠키 파싱
+
+### Development Tools
+- **nodemon** - 개발 서버 자동 재시작
+
+---
+
+## 🏗 시스템 아키텍처
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        Client Layer                          │
+│                  (React Frontend - Vercel)                   │
+└────────────────────────┬────────────────────────────────────┘
+                         │ HTTPS/REST API
+                         │
+┌────────────────────────▼────────────────────────────────────┐
+│                     API Gateway Layer                        │
+│                    (Express.js Server)                       │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │  CORS Middleware  │  JWT Auth  │  Body Parser       │  │
+│  └──────────────────────────────────────────────────────┘  │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+┌────────────────────────▼────────────────────────────────────┐
+│                    Business Logic Layer                      │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │                    Route Handlers                     │  │
+│  │  • auth.js        • members.js      • exercises.js   │  │
+│  │  • diet.js        • attendance.js   • points.js      │  │
+│  │  • goals.js       • classes.js      • mentoring.js   │  │
+│  │  • rewards.js     • badges.js       • quests.js      │  │
+│  │  • guide.js       • health.js       • admin.js       │  │
+│  └──────────────────────────────────────────────────────┘  │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+┌────────────────────────▼────────────────────────────────────┐
+│                    Data Access Layer                         │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │              MySQL Connection Pool                    │  │
+│  │              (mysql2/promise)                         │  │
+│  └──────────────────────────────────────────────────────┘  │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+┌────────────────────────▼────────────────────────────────────┐
+│                      Database Layer                          │
+│                    (MySQL Database)                          │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │  Tables: Member, Attendance, ExerciseLog, DietLog,   │  │
+│  │  Goal, IncentivePolicy, AchievementLog, Reward,      │  │
+│  │  Badge, Class, HealthRecord, etc.                    │  │
+│  │                                                        │  │
+│  │  Triggers: Auto Point Calculation & Reward System    │  │
+│  └──────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🔄 데이터 플로우
+
+### 1. 인증 플로우
+```
+Client → POST /api/auth/login
+         ↓
+      Validate Credentials (bcrypt)
+         ↓
+      Generate JWT Token
+         ↓
+      Return Token + User Info
+         ↓
+Client stores token in localStorage
+         ↓
+Subsequent requests include token in Authorization header
+```
+
+### 2. 포인트 적립 플로우
+```
+Client → POST /api/exercises (운동 기록)
+         ↓
+      INSERT INTO ExerciseLog
+         ↓
+      [TRIGGER] TRG_Exercise_Batch_Reward
+         ↓
+      Check unrewarded count >= condition_value
+         ↓
+      INSERT INTO AchievementLog (points_earned)
+         ↓
+      [TRIGGER] TRG_Achievement_Point_Earn
+         ↓
+      UPDATE Member.total_points += points_earned
+         ↓
+      Return success response
+```
+
+### 3. 포인트 사용 플로우
+```
+Client → POST /api/rewards/exchange
+         ↓
+      Check Member.total_points >= required_points
+         ↓
+      INSERT INTO PointExchange (used_points)
+         ↓
+      [TRIGGER] TRG_Exchange_Point_Use
+         ↓
+      UPDATE Member.total_points -= used_points
+         ↓
+      UPDATE Reward.stock_quantity -= 1
+         ↓
+      Return success response
+```
+
+### 4. 출석 체크 플로우
+```
+Client → POST /api/attendance/checkin
+         ↓
+      INSERT INTO Attendance (entered_at)
+         ↓
+      [TRIGGER] TRG_Attendance_Batch_Reward
+         ↓
+      Auto point calculation if condition met
+         ↓
+      Return current crowd status
+```
+
+---
+
+## 📁 프로젝트 구조
 
 ```
 BE/
 ├── src/
+│   ├── app.js                    # Express 앱 진입점
 │   ├── config/
-│   │   └── database.js         # MySQL 연결 설정
-│   ├── routes/                 # API 라우트
-│   │   ├── members.js          # 회원 관리
-│   │   ├── exercises.js        # 운동 기록
-│   │   ├── diet.js             # 식단 기록
-│   │   ├── attendance.js       # 출석 관리
-│   │   ├── points.js           # 포인트 시스템
-│   │   ├── goals.js            # 목표 관리
-│   │   ├── classes.js          # 교양수업 시간표
-│   │   ├── mentoring.js        # 멘토링 매칭
-│   │   └── rewards.js          # 보상 교환
-│   └── app.js                  # Express 앱 진입점
+│   │   └── database.js           # MySQL 연결 설정
+│   ├── middleware/
+│   │   └── auth.js               # JWT 인증 미들웨어
+│   ├── routes/                   # API 라우트
+│   │   ├── auth.js               # 인증 (로그인/회원가입)
+│   │   ├── members.js            # 회원 관리
+│   │   ├── attendance.js         # 출석 관리
+│   │   ├── exercises.js          # 운동 기록
+│   │   ├── diet.js               # 식단 관리
+│   │   ├── goals.js              # 목표 관리
+│   │   ├── points.js             # 포인트 조회
+│   │   ├── rewards.js            # 보상 상품
+│   │   ├── badges.js             # 뱃지 관리
+│   │   ├── quests.js             # 퀘스트 시스템
+│   │   ├── classes.js            # 수업 관리
+│   │   ├── mentoring.js          # 멘토링 시스템
+│   │   ├── health.js             # 신체 기록
+│   │   ├── guide.js              # 가이드 정보
+│   │   └── admin.js              # 관리자 기능
+│   ├── controllers/              # 비즈니스 로직 (예정)
+│   ├── models/                   # 데이터 모델 (예정)
+│   └── utils/                    # 유틸리티 함수 (예정)
 ├── sql/
-│   ├── HS_Health.sql           # 데이터베이스 스키마
-│   ├── insert_dummy_data.sql   # 더미 데이터
-│   ├── insert_class_data.sql   # 수업 데이터
-│   └── README.md               # SQL 가이드
-├── .env.example                # 환경 변수 예시
+│   ├── HS_Health.sql             # 전체 DB 스키마 + 트리거
+│   ├── insert_dummy_data.sql     # 테스트 데이터
+│   ├── insert_class_data.sql     # 수업 데이터
+│   └── add_total_points_column.sql
+├── scripts/
+│   └── init_rewards.js           # 보상 정책 초기화
+├── .env                          # 환경 변수
 ├── .gitignore
 ├── package.json
 └── README.md
@@ -55,270 +255,209 @@ BE/
 
 ---
 
-## ✨ 설치 및 실행
+## 🚀 설치 및 실행
 
-### 1. 저장소 클론
+### 1. 환경 변수 설정
+`.env` 파일을 생성하고 다음 내용을 입력하세요:
 
-```bash
-git clone https://github.com/hsugym/BE.git
-cd BE
+```env
+# Server
+PORT=5001
+NODE_ENV=development
+
+# Database
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=your_password
+DB_NAME=hs_health
+DB_PORT=3306
+
+# JWT
+JWT_SECRET=hansung_gym_secret_key_2025
+JWT_EXPIRE=7d
+
+# Frontend URL
+FRONTEND_URL=http://localhost:3000
 ```
 
-### 2. 패키지 설치
-
+### 2. 의존성 설치
 ```bash
 npm install
 ```
 
-### 3. 환경 변수 설정
-
-`.env.example` 파일을 복사하여 `.env` 파일 생성:
-
-```bash
-cp .env.example .env
-```
-
-`.env` 파일 수정:
-
-```env
-PORT=5001
-NODE_ENV=development
-
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=root
-DB_PASSWORD=your_password
-DB_NAME=hs_health
-
-FRONTEND_URL=http://localhost:3000
-```
-
-### 4. 데이터베이스 설정
-
-MySQL에 접속하여 데이터베이스 생성 및 스키마 적용:
-
+### 3. 데이터베이스 설정
 ```bash
 # MySQL 접속
 mysql -u root -p
 
 # 데이터베이스 생성
-CREATE DATABASE hs_health CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE hs_health;
 USE hs_health;
 
-# 스키마 적용
+# 스키마 및 트리거 생성
 source sql/HS_Health.sql;
 
-# 더미 데이터 삽입
+# 테스트 데이터 삽입 (선택)
 source sql/insert_dummy_data.sql;
 source sql/insert_class_data.sql;
 ```
 
-### 5. 서버 실행
-
-개발 모드 (nodemon):
+### 4. 보상 정책 초기화
 ```bash
-npm run dev
+node scripts/init_rewards.js
 ```
 
-프로덕션 모드:
+### 5. 서버 실행
 ```bash
+# 개발 모드 (nodemon)
+npm run dev
+
+# 프로덕션 모드
 npm start
 ```
 
-서버 실행 확인:
-```
-✨ MySQL 데이터베이스 연결 성공!
-✨ 서버가 포트 5001에서 실행 중입니다.
-✨ http://localhost:5001
-✨ 환경: development
-```
+서버가 `http://localhost:5001`에서 실행됩니다.
 
 ---
 
-## ✨ API 엔드포인트
+## 📡 API 엔드포인트
 
-### 기본
+### Authentication
+- `POST /api/auth/login` - 로그인
+- `POST /api/auth/register` - 회원가입
+- `GET /api/auth/me` - 현재 사용자 정보
+- `POST /api/auth/logout` - 로그아웃
 
-- `GET /` - API 정보 조회
-- `GET /health` - 헬스 체크
-
-### 회원 (Members)
-
-- `GET /api/members` - 모든 회원 조회
+### Members
+- `GET /api/members` - 전체 회원 조회
 - `GET /api/members/:id` - 특정 회원 조회
 - `POST /api/members` - 회원 생성
 - `PUT /api/members/:id` - 회원 정보 수정
 - `PUT /api/members/:id/profile` - 프로필 업데이트
 - `DELETE /api/members/:id` - 회원 삭제
 
-### 운동 (Exercises)
+### Attendance
+- `POST /api/attendance/checkin` - 입장
+- `POST /api/attendance/checkout` - 퇴장
+- `GET /api/attendance/current` - 현재 이용 인원
+- `GET /api/attendance/history/:memberId` - 출석 기록
 
-- `GET /api/exercises/list` - 운동 리스트 조회
-- `GET /api/exercises/list/category/:category` - 카테고리별 운동 조회
-- `GET /api/exercises/logs/:memberId` - 회원의 운동 기록 조회
-- `GET /api/exercises/logs/:memberId/date/:date` - 특정 날짜 운동 기록
-- `POST /api/exercises/logs` - 운동 기록 추가
-- `DELETE /api/exercises/logs/:logId` - 운동 기록 삭제
+### Exercises
+- `GET /api/exercises` - 운동 목록
+- `POST /api/exercises` - 운동 기록 추가
+- `GET /api/exercises/log/:memberId` - 운동 기록 조회
+- `POST /api/exercises/list` - 운동 종목 추가
 
-### 식단 (Diet)
+### Diet
+- `GET /api/diet` - 식단 기록 조회
+- `POST /api/diet` - 식단 기록 추가
+- `GET /api/diet/foods` - 음식 목록
+- `POST /api/diet/foods` - 음식 추가
 
-- `GET /api/diet/list` - 음식 리스트 조회
-- `GET /api/diet/list/category/:category` - 카테고리별 음식 조회
-- `GET /api/diet/logs/:memberId` - 회원의 식단 기록 조회
-- `GET /api/diet/logs/:memberId/date/:date` - 특정 날짜 식단 기록
-- `POST /api/diet/logs` - 식단 기록 추가
-- `DELETE /api/diet/logs/:logId` - 식단 기록 삭제
-
-### 출석 (Attendance)
-
-- `GET /api/attendance/:memberId` - 회원의 출석 기록 조회
-- `GET /api/attendance/:memberId/date/:date` - 특정 날짜 출석 기록
-- `GET /api/attendance/current/users` - 현재 이용 중인 회원 조회
-- `GET /api/attendance/current/crowd` - 헬스장 혼잡도 조회
-- `POST /api/attendance/check-in` - 입장 체크
-- `PUT /api/attendance/check-out/:attendanceId` - 퇴장 체크
-
-### 포인트 (Points)
-
-- `GET /api/points/:memberId` - 회원 포인트 조회
-- `GET /api/points/achievements/:memberId` - 성취 로그 조회
-- `GET /api/points/policies/all` - 모든 보상 정책 조회
-- `GET /api/points/policies/:type` - 특정 타입 보상 정책 조회
-- `POST /api/points/grant` - 포인트 수동 지급 (관리자)
-
-### 목표 (Goals)
-
-- `GET /api/goals/:memberId` - 회원의 목표 조회
+### Goals
+- `GET /api/goals/:memberId` - 목표 조회
 - `POST /api/goals` - 목표 생성
-- `PUT /api/goals/:goalId` - 목표 수정
-- `PUT /api/goals/:goalId/achieve` - 목표 달성 처리
-- `DELETE /api/goals/:goalId` - 목표 삭제
+- `PUT /api/goals/:id` - 목표 수정
+- `PUT /api/goals/:id/achieve` - 목표 달성
+- `DELETE /api/goals/:id` - 목표 삭제
 
-### 교양수업 (Classes)
+### Points & Rewards
+- `GET /api/points/:memberId` - 포인트 조회
+- `GET /api/points/history/:memberId` - 포인트 내역
+- `GET /api/rewards` - 보상 상품 목록
+- `POST /api/rewards/exchange` - 포인트 교환
 
-- `GET /api/classes` - 모든 교양수업 조회
-- `GET /api/classes/:classId/schedules` - 특정 수업 시간표 조회
-- `GET /api/classes/schedules/all` - 모든 수업 시간표 조회
-- `POST /api/classes` - 교양수업 생성
-- `POST /api/classes/:classId/schedules` - 수업 시간표 추가
-- `PUT /api/classes/:classId` - 수업 정보 수정
-- `DELETE /api/classes/:classId` - 수업 삭제
+### Classes
+- `GET /api/classes` - 수업 목록
+- `GET /api/classes/:id/schedule` - 수업 시간표
+- `POST /api/classes/register` - 수강 신청
+- `DELETE /api/classes/register/:id` - 수강 취소
 
-### 멘토링 (Mentoring)
+### Mentoring
+- `POST /api/mentoring/request` - 멘토링 신청
+- `GET /api/mentoring/matches` - 매칭 목록
+- `PUT /api/mentoring/accept/:id` - 매칭 수락
+- `DELETE /api/mentoring/cancel/:id` - 매칭 취소
 
-- `GET /api/mentoring/mentors/posts` - 멘토 모집글 목록
-- `GET /api/mentoring/mentees/posts` - 멘티 모집글 목록
-- `POST /api/mentoring/mentors/posts` - 멘토 모집글 작성
-- `POST /api/mentoring/mentees/posts` - 멘티 모집글 작성
-- `DELETE /api/mentoring/mentors/posts/:id` - 멘토 모집글 삭제
-- `DELETE /api/mentoring/mentees/posts/:id` - 멘티 모집글 삭제
+### Health Records
+- `GET /api/health/:memberId` - 신체 기록 조회
+- `POST /api/health` - 신체 기록 추가
+- `GET /api/health/:memberId/latest` - 최근 기록
 
-### 보상 (Rewards)
+### Badges & Quests
+- `GET /api/badges/:memberId` - 획득 뱃지 조회
+- `GET /api/quests` - 퀘스트 목록
+- `POST /api/quests/complete` - 퀘스트 완료
 
-- `GET /api/rewards` - 모든 보상 상품 조회
-- `GET /api/rewards/:rewardId` - 특정 보상 상품 조회
-- `GET /api/rewards/exchanges/:memberId` - 회원의 교환 내역 조회
-- `POST /api/rewards` - 보상 상품 생성 (관리자)
-- `POST /api/rewards/exchange` - 보상 교환
-- `PUT /api/rewards/:rewardId/stock` - 재고 업데이트 (관리자)
-
----
-
-## ✨ 데이터베이스 스키마
-
-### 주요 테이블
-
-- **Member** - 회원 정보
-- **ExerciseList** - 운동 목록
-- **FoodList** - 음식 목록
-- **ExerciseLog** - 운동 기록
-- **DietLog** - 식단 기록
-- **HealthRecord** - 건강 기록
-- **Attendance** - 출석 기록
-- **AchievementLog** - 성취 로그
-- **IncentivePolicy** - 보상 정책
-- **Goal** - 목표
-- **Class** - 교양수업
-- **Class_Schedule** - 수업 시간표
-- **MentorPost** - 멘토 모집글
-- **MenteePost** - 멘티 모집글
-- **Reward** - 보상 상품
-- **PointExchange** - 포인트 교환 내역
-
-자세한 스키마 정보는 [sql/README.md](sql/README.md)를 참조하세요.
+### Admin
+- `GET /api/admin/stats` - 통계 조회
+- `POST /api/admin/policies` - 보상 정책 관리
 
 ---
 
-## ✨ 환경 변수
+## 🗄 데이터베이스 스키마
 
-| 변수 | 설명 | 기본값 |
-|------|------|--------|
-| `PORT` | 서버 포트 | 5001 |
-| `NODE_ENV` | 실행 환경 | development |
-| `DB_HOST` | MySQL 호스트 | localhost |
-| `DB_PORT` | MySQL 포트 | 3306 |
-| `DB_USER` | MySQL 사용자 | root |
-| `DB_PASSWORD` | MySQL 비밀번호 | - |
-| `DB_NAME` | 데이터베이스 이름 | hs_health |
-| `FRONTEND_URL` | 프론트엔드 URL (CORS) | http://localhost:3000 |
+### 핵심 테이블
 
----
+#### Member (회원)
+- 회원 기본 정보 (학번, 이름, 연락처, 학과, 학년)
+- 역할 타입 (일반/강사/멘토/멘티)
+- 포인트 캐싱 (total_points)
 
-## ✨ 배포
+#### IncentivePolicy (보상 정책)
+- 정책 타입 (운동/식단/목표/출석)
+- 달성 조건 (condition_value)
+- 지급 포인트 (points_awarded)
 
-### Railway 배포 (추천)
+#### AchievementLog (업적 로그)
+- 포인트 획득 기록
+- 정책 연결 (policy_id)
+- 포인트 스냅샷
 
-1. [Railway](https://railway.app) 계정 생성
-2. GitHub 저장소 연동
-3. 환경 변수 설정
-4. MySQL 플러그인 추가
-5. 자동 배포
+#### ExerciseLog, DietLog, Attendance, Goal
+- 각 활동 기록
+- achievement_id로 보상 연결
 
-### Render 배포
+#### Reward (보상 상품)
+- 상품명, 필요 포인트, 재고
 
-1. [Render](https://render.com) 계정 생성
-2. Web Service 생성
-3. GitHub 저장소 연동
-4. 환경 변수 설정
-5. 빌드 및 배포
+#### PointExchange (포인트 교환)
+- 사용 포인트, 교환 일시
 
-### PlanetScale (MySQL)
+### 자동화 트리거
 
-무료 MySQL 호스팅:
+1. **TRG_Achievement_Point_Earn**
+   - AchievementLog 생성 시 Member.total_points 자동 증가
 
-1. [PlanetScale](https://planetscale.com) 계정 생성
-2. 데이터베이스 생성
-3. 연결 문자열 복사
-4. `.env`에 설정
+2. **TRG_Exchange_Point_Use**
+   - PointExchange 생성 시 Member.total_points 자동 감소
 
----
+3. **TRG_Exercise_Batch_Reward**
+   - 운동 기록 N회 달성 시 자동 포인트 적립
 
-## ✨ 개발
+4. **TRG_Diet_Batch_Reward**
+   - 식단 기록 N회 달성 시 자동 포인트 적립
 
-### API 테스트
+5. **TRG_Attendance_Batch_Reward**
+   - 출석 N회 달성 시 자동 포인트 적립
 
-```bash
-# 서버 상태 확인
-curl http://localhost:5001/health
-
-# 모든 회원 조회
-curl http://localhost:5001/api/members
-
-# 특정 회원 조회
-curl http://localhost:5001/api/members/1
-```
-
-### 로그 확인
-
-모든 API 요청은 콘솔에 로그가 출력됩니다:
-
-```
-2025-01-23T10:30:15.123Z - GET /api/members
-2025-01-23T10:30:16.456Z - POST /api/exercises/logs
-```
+6. **TRG_Goal_Batch_Reward**
+   - 목표 N개 달성 시 자동 포인트 적립
 
 ---
 
-## ✨ 라이선스
+## 📝 라이센스
 
-이 프로젝트는 교육 목적으로 제작되었습니다.
+MIT License
+
+---
+
+## 👥 개발팀
+
+HSU Gym Team
+
+---
+
+## 📞 문의
+
+프로젝트 관련 문의사항은 이슈를 등록해주세요.
